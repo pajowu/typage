@@ -22,7 +22,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: age-esbuild
-          path: typage.js
+          path: dist/
   upload:
     if: github.event_name == 'release'
     needs: build
@@ -33,24 +33,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: age-esbuild
-      - run: gh release upload -R FiloSottile/typage "$VERSION" "typage.js#age-${VERSION#v}.min.js"
+      - run: gh release upload -R pajowu/typage "$VERSION" "age-esbuild.zip"
         env:
           VERSION: ${{ github.event.release.tag_name }}
           GH_TOKEN: ${{ github.token }}
-  publish:
-    if: github.event_name == 'release'
-    permissions:
-      id-token: write
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-          registry-url: "https://registry.npmjs.org"
-      - run: npm clean-install
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
